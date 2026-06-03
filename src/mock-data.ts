@@ -39,6 +39,7 @@ export const defaultData: StoreState = {
   contact: {
     address: '24 rue de la Paix, 75002 Paris',
     phone: '01 42 00 00 00',
+    whatsapp: '33142000000',
     instagram: '@belle.epoque.paris',
     tiktok: '@belleepoque',
     hours: [

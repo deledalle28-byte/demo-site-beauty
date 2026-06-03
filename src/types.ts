@@ -52,6 +52,7 @@ export interface StoreState {
   contact: {
     address: string
     phone: string
+    whatsapp: string
     instagram: string
     tiktok: string
     hours: string[]

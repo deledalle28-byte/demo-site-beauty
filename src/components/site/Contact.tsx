@@ -85,17 +85,19 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <a
-                href={`https://wa.me/33142000000`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-white px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-90"
-                style={{ backgroundColor: '#25D366' }}
-              >
-                <MessageCircle size={16} />
-                WhatsApp
-              </a>
+            <div className="flex flex-wrap gap-3 pt-2">
+              {contact.whatsapp && (
+                <a
+                  href={`https://wa.me/${contact.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-white px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: '#25D366' }}
+                >
+                  <MessageCircle size={16} />
+                  WhatsApp
+                </a>
+              )}
               <a
                 href={`tel:${contact.phone.replace(/\s/g, '')}`}
                 className="flex items-center gap-2 text-white px-5 py-2.5 rounded-full text-sm transition-opacity hover:opacity-90"
@@ -104,14 +106,17 @@ export default function Contact() {
                 <Phone size={16} />
                 Appeler
               </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 border border-beige-300 px-4 py-2.5 rounded-full text-sm hover:bg-beige-50 transition-colors"
-              >
-                <AtSign size={16} />
-              </a>
+              {contact.instagram && (
+                <a
+                  href={`https://instagram.com/${contact.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 border border-beige-300 px-4 py-2.5 rounded-full text-sm hover:bg-beige-50 transition-colors"
+                >
+                  <AtSign size={16} />
+                  {contact.instagram}
+                </a>
+              )}
             </div>
           </motion.div>
 

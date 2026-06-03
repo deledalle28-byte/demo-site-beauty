@@ -14,6 +14,7 @@ interface StoreContextType {
   removeAvis: (id: string) => void
   addAppointment: (a: Appointment) => void
   cancelAppointment: (id: string) => void
+  updateContact: (updates: Partial<StoreState['contact']>) => void
   updateDaySchedule: (day: string, schedule: Partial<DaySchedule>) => void
   setSlotInterval: (interval: number) => void
   addLoyaltyStamp: () => void
@@ -59,6 +60,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const cancelAppointment = useCallback((id: string) =>
     setState(s => ({ ...s, appointments: s.appointments.filter(a => a.id !== id) })), [])
 
+  const updateContact = useCallback((updates: Partial<StoreState['contact']>) =>
+    setState(s => ({ ...s, contact: { ...s.contact, ...updates } })), [])
+
   const updateDaySchedule = useCallback((day: string, updates: Partial<DaySchedule>) =>
     setState(s => ({
       ...s,
@@ -83,7 +87,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addPrestation, updatePrestation, removePrestation,
       addAvis, removeAvis,
       addAppointment, cancelAppointment,
-      updateDaySchedule, setSlotInterval,
+      updateContact, updateDaySchedule, setSlotInterval,
       addLoyaltyStamp, resetLoyalty, resetDemo,
     }}>
       {children}
