@@ -3,28 +3,48 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Clock, User, Check, ChevronLeft, CalendarPlus } from 'lucide-react'
 import { useStore } from '../../store'
 import { generateICS } from './ics'
-import type { Appointment } from '../../types'
+import type { Appointment, WeekSchedule, DaySchedule } from '../../types'
 
 type Step = 'prestation' | 'date' | 'time' | 'info' | 'confirm'
 
-const SLOTS = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']
-const BUSY = new Set(['10:00', '14:30'])
+const DAY_KEYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 
-function getNext6Days() {
+function getNext7Days(schedule: WeekSchedule) {
   const days: { date: string; label: string; dayName: string }[] = []
   const formatter = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; days.length < 6 && i <= 14; i++) {
     const d = new Date()
     d.setDate(d.getDate() + i)
-    if (d.getDay() === 0) continue
-    const parts = formatter.format(d)
+    const dayKey = DAY_KEYS[d.getDay()]
+    if (!schedule[dayKey]?.open) continue
     days.push({
       date: d.toISOString().split('T')[0],
-      label: parts,
+      label: formatter.format(d),
       dayName: new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(d),
     })
   }
   return days
+}
+
+function generateSlots(day: DaySchedule, interval: number): string[] {
+  if (!day.open) return []
+  const slots: string[] = []
+  const [sh, sm] = day.start.split(':').map(Number)
+  const [eh, em] = day.end.split(':').map(Number)
+  const [bsh, bsm] = day.breakStart.split(':').map(Number)
+  const [beh, bem] = day.breakEnd.split(':').map(Number)
+  const startMin = sh * 60 + sm
+  const endMin = eh * 60 + em
+  const breakStartMin = bsh * 60 + bsm
+  const breakEndMin = beh * 60 + bem
+
+  for (let m = startMin; m < endMin; m += interval) {
+    if (m >= breakStartMin && m < breakEndMin) continue
+    const h = Math.floor(m / 60)
+    const min = m % 60
+    slots.push(`${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`)
+  }
+  return slots
 }
 
 export default function BookingEngine() {
@@ -37,8 +57,25 @@ export default function BookingEngine() {
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
 
-  const days = useMemo(getNext6Days, [])
+  const days = useMemo(() => getNext7Days(state.schedule), [state.schedule])
   const prestation = state.prestations.find(p => p.id === selectedPrestation)
+
+  const slots = useMemo(() => {
+    if (!selectedDate) return []
+    const d = new Date(selectedDate)
+    const dayKey = DAY_KEYS[d.getDay()]
+    const daySched = state.schedule[dayKey]
+    if (!daySched) return []
+    return generateSlots(daySched, state.slotInterval)
+  }, [selectedDate, state.schedule, state.slotInterval])
+
+  const busySlots = useMemo(() => {
+    return new Set(
+      state.appointments
+        .filter(a => a.date === selectedDate)
+        .map(a => a.time)
+    )
+  }, [selectedDate, state.appointments])
 
   function handleConfirm() {
     if (!prestation) return
@@ -183,27 +220,31 @@ export default function BookingEngine() {
                     </button>
                     <h3 className="font-serif text-xl">Choisissez un horaire</h3>
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {SLOTS.map(s => {
-                      const busy = BUSY.has(s)
-                      return (
-                        <button
-                          key={s}
-                          disabled={busy}
-                          onClick={() => { setSelectedTime(s); setStep('info') }}
-                          className="py-3 rounded-xl border text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-sm"
-                          style={{
-                            borderColor: selectedTime === s ? state.accentColor : '#E7DCCB',
-                            backgroundColor: selectedTime === s ? state.accentColor + '10' : 'white',
-                          }}
-                        >
-                          {busy ? <span className="line-through">{s}</span> : s}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {BUSY.size > 0 && (
-                    <p className="text-xs text-brown-500 mt-3">Les créneaux barrés sont complets</p>
+                  {slots.length === 0 ? (
+                    <p className="text-brown-500 text-center py-8">Aucun créneau disponible ce jour</p>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {slots.map(s => {
+                        const busy = busySlots.has(s)
+                        return (
+                          <button
+                            key={s}
+                            disabled={busy}
+                            onClick={() => { setSelectedTime(s); setStep('info') }}
+                            className="py-3 rounded-xl border text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-sm"
+                            style={{
+                              borderColor: selectedTime === s ? state.accentColor : '#E7DCCB',
+                              backgroundColor: selectedTime === s ? state.accentColor + '10' : 'white',
+                            }}
+                          >
+                            {busy ? <span className="line-through">{s}</span> : s}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {busySlots.size > 0 && (
+                    <p className="text-xs text-brown-500 mt-3">Les créneaux barrés sont déjà pris</p>
                   )}
                 </div>
               )}

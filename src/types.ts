@@ -29,6 +29,16 @@ export interface GalleryItem {
   label: string
 }
 
+export interface DaySchedule {
+  open: boolean
+  start: string
+  end: string
+  breakStart: string
+  breakEnd: string
+}
+
+export type WeekSchedule = Record<string, DaySchedule>
+
 export interface StoreState {
   brandName: string
   slogan: string
@@ -37,6 +47,8 @@ export interface StoreState {
   avis: Avis[]
   appointments: Appointment[]
   gallery: GalleryItem[]
+  schedule: WeekSchedule
+  slotInterval: number
   contact: {
     address: string
     phone: string

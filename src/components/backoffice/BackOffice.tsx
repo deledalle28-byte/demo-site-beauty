@@ -1,17 +1,19 @@
 import { useState } from 'react'
-import { Palette, Scissors, Calendar, Star, RotateCcw } from 'lucide-react'
+import { Palette, Scissors, Calendar, Star, Clock, RotateCcw } from 'lucide-react'
 import { useStore } from '../../store'
 import Login from './Login'
 import TabIdentity from './TabIdentity'
 import TabPrestations from './TabPrestations'
 import TabPlanning from './TabPlanning'
 import TabAvis from './TabAvis'
+import TabSchedule from './TabSchedule'
 
-type Tab = 'identity' | 'prestations' | 'planning' | 'avis'
+type Tab = 'identity' | 'prestations' | 'schedule' | 'planning' | 'avis'
 
 const tabs: { key: Tab; label: string; icon: typeof Palette }[] = [
   { key: 'identity', label: 'Identité', icon: Palette },
   { key: 'prestations', label: 'Prestations', icon: Scissors },
+  { key: 'schedule', label: 'Horaires', icon: Clock },
   { key: 'planning', label: 'Planning', icon: Calendar },
   { key: 'avis', label: 'Avis', icon: Star },
 ]
@@ -61,6 +63,7 @@ export default function BackOffice() {
 
         {activeTab === 'identity' && <TabIdentity />}
         {activeTab === 'prestations' && <TabPrestations />}
+        {activeTab === 'schedule' && <TabSchedule />}
         {activeTab === 'planning' && <TabPlanning />}
         {activeTab === 'avis' && <TabAvis />}
       </div>

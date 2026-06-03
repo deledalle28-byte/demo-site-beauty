@@ -2,9 +2,40 @@ import { motion } from 'framer-motion'
 import { MapPin, Phone, Clock, MessageCircle, AtSign } from 'lucide-react'
 import { useStore } from '../../store'
 
+const DAYS_ORDER = [
+  { key: 'lundi', label: 'Lun' },
+  { key: 'mardi', label: 'Mar' },
+  { key: 'mercredi', label: 'Mer' },
+  { key: 'jeudi', label: 'Jeu' },
+  { key: 'vendredi', label: 'Ven' },
+  { key: 'samedi', label: 'Sam' },
+  { key: 'dimanche', label: 'Dim' },
+]
+
+function formatScheduleHours(schedule: Record<string, { open: boolean; start: string; end: string }>): string[] {
+  const lines: string[] = []
+  let i = 0
+  while (i < DAYS_ORDER.length) {
+    const current = schedule[DAYS_ORDER[i].key]
+    let j = i + 1
+    while (j < DAYS_ORDER.length) {
+      const next = schedule[DAYS_ORDER[j].key]
+      if (current.open !== next.open || (current.open && (current.start !== next.start || current.end !== next.end))) break
+      j++
+    }
+    const range = i === j - 1
+      ? DAYS_ORDER[i].label
+      : `${DAYS_ORDER[i].label} — ${DAYS_ORDER[j - 1].label}`
+    lines.push(current.open ? `${range} : ${current.start} – ${current.end}` : `${range} : Fermé`)
+    i = j
+  }
+  return lines
+}
+
 export default function Contact() {
   const { state } = useStore()
   const { contact } = state
+  const hoursLines = formatScheduleHours(state.schedule)
 
   return (
     <section id="contact" className="py-24 px-4 bg-beige-200/50">
@@ -48,7 +79,7 @@ export default function Contact() {
               <Clock size={20} style={{ color: state.accentColor }} className="mt-1 shrink-0" />
               <div>
                 <p className="font-medium mb-1">Horaires</p>
-                {contact.hours.map((h, i) => (
+                {hoursLines.map((h, i) => (
                   <p key={i} className="text-brown-500 text-sm">{h}</p>
                 ))}
               </div>

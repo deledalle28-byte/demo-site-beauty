@@ -21,6 +21,16 @@ export const defaultData: StoreState = {
     { id: '2', date: getDateStr(0), time: '14:30', clientName: 'Julie Martin', clientPhone: '06 98 76 54 32', prestation: 'Manucure semi-permanent', source: 'Téléphone' },
     { id: '3', date: getDateStr(1), time: '11:00', clientName: 'Claire Bernard', clientPhone: '06 55 44 33 22', prestation: 'Massage relaxant', source: 'Téléphone' },
   ],
+  schedule: {
+    lundi:    { open: true,  start: '09:00', end: '19:00', breakStart: '12:30', breakEnd: '14:00' },
+    mardi:    { open: true,  start: '09:00', end: '19:00', breakStart: '12:30', breakEnd: '14:00' },
+    mercredi: { open: true,  start: '09:00', end: '19:00', breakStart: '12:30', breakEnd: '14:00' },
+    jeudi:    { open: true,  start: '09:00', end: '19:00', breakStart: '12:30', breakEnd: '14:00' },
+    vendredi: { open: true,  start: '09:00', end: '19:00', breakStart: '12:30', breakEnd: '14:00' },
+    samedi:   { open: true,  start: '09:00', end: '17:00', breakStart: '12:30', breakEnd: '13:30' },
+    dimanche: { open: false, start: '09:00', end: '17:00', breakStart: '12:00', breakEnd: '13:00' },
+  },
+  slotInterval: 30,
   gallery: [
     { id: '1', before: '', after: '', label: 'Soin du visage' },
     { id: '2', before: '', after: '', label: 'Manucure' },

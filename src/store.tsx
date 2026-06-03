@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import type { StoreState, Prestation, Avis, Appointment } from './types'
+import type { StoreState, Prestation, Avis, Appointment, DaySchedule } from './types'
 import { defaultData } from './mock-data'
 
 interface StoreContextType {
@@ -14,6 +14,8 @@ interface StoreContextType {
   removeAvis: (id: string) => void
   addAppointment: (a: Appointment) => void
   cancelAppointment: (id: string) => void
+  updateDaySchedule: (day: string, schedule: Partial<DaySchedule>) => void
+  setSlotInterval: (interval: number) => void
   addLoyaltyStamp: () => void
   resetLoyalty: () => void
   resetDemo: () => void
@@ -57,6 +59,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const cancelAppointment = useCallback((id: string) =>
     setState(s => ({ ...s, appointments: s.appointments.filter(a => a.id !== id) })), [])
 
+  const updateDaySchedule = useCallback((day: string, updates: Partial<DaySchedule>) =>
+    setState(s => ({
+      ...s,
+      schedule: { ...s.schedule, [day]: { ...s.schedule[day], ...updates } },
+    })), [])
+
+  const setSlotInterval = useCallback((slotInterval: number) =>
+    setState(s => ({ ...s, slotInterval })), [])
+
   const addLoyaltyStamp = useCallback(() =>
     setState(s => ({ ...s, loyaltyStamps: Math.min(s.loyaltyStamps + 1, 5) })), [])
 
@@ -72,6 +83,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addPrestation, updatePrestation, removePrestation,
       addAvis, removeAvis,
       addAppointment, cancelAppointment,
+      updateDaySchedule, setSlotInterval,
       addLoyaltyStamp, resetLoyalty, resetDemo,
     }}>
       {children}
